@@ -110,7 +110,7 @@ class CaptureSession:
         self.frame_timestamp = frame_timestamp_for_path(event.timestamp)
         self.dataset_id = build_dataset_id(config, self.dataset_timestamp)
         self.frame_prefix = build_file_prefix(config, self.frame_timestamp)
-        self.label_prefix = build_file_prefix(config, self.dataset_timestamp)
+        self.label_prefix = self.frame_prefix
         self.event_dir = unique_event_dir(config.output_root, self.dataset_id)
         self.images_dir = self.event_dir / "images"
         self.bbox_dir = self.event_dir / "bbox"
@@ -308,8 +308,8 @@ class GuiServingDatasetCapture(Node):
                 else self._run_yolo_batch(session)
             )
             write_annotation_files(session, detections_by_frame)
-            write_metadata(session)
             session.finalized = True
+            write_metadata(session)
             self.report(f"Finalized: {session.event_dir} frames={session.frame_count}")
         except Exception as error:
             self.last_error = f"failed to finalize {session.event_dir}: {error}"
@@ -442,6 +442,7 @@ def unique_event_dir(output_root: Path, dataset_id: str) -> Path:
 def write_metadata(session: CaptureSession) -> None:
     payload = {
         "dataset_id": session.dataset_id,
+        "finalized": session.finalized,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "naming": {
             "dataset_dir": "<site_code>_<timestamp_seconds>_<camera_kind>_<type>",
@@ -450,7 +451,7 @@ def write_metadata(session: CaptureSession) -> None:
                 "<type>_frame_00000000.png"
             ),
             "label_file": (
-                "<site_code>_<timestamp_seconds>_<camera_kind>_"
+                "<site_code>_<timestamp_seconds_with_timezone>_<camera_kind>_"
                 "<type>_frame_00000000.json"
             ),
             "site_code": session.config.site_code,

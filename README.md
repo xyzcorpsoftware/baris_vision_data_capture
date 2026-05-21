@@ -23,7 +23,7 @@ Naming:
   images/
     <site_code>_<timestamp+timezone>_<camera_kind>_<type>_frame_00000000.png
   bbox/
-    <site_code>_<timestamp>_<camera_kind>_<type>_frame_00000000.json
+    <site_code>_<timestamp+timezone>_<camera_kind>_<type>_frame_00000000.json
   metadata.json
   frame_manifest.jsonl
 ```
@@ -34,13 +34,15 @@ files under `bbox/`.
 
 Frames are saved at the source image resolution. The observed width and height are
 recorded in `metadata.json` and each LabelMe JSON file.
+`metadata.json` also includes `finalized`, which is `true` only after all LabelMe
+JSON files have been written.
 
 Example:
 
 ```text
 BBXYZ_20260519T131820_topview1_serving/
   images/BBXYZ_20260519T131820+0900_topview1_serving_frame_00000000.png
-  bbox/BBXYZ_20260519T131820_topview1_serving_frame_00000000.json
+  bbox/BBXYZ_20260519T131820+0900_topview1_serving_frame_00000000.json
 ```
 
 CLI mode is also available:
