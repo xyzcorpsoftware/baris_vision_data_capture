@@ -209,6 +209,11 @@ class GuiServingDatasetCapture(Node):
         if event is None or event.timestamp == self.last_event_timestamp:
             return
 
+        if self.last_event_timestamp is None:
+            self.last_event_timestamp = event.timestamp
+            self.report(f"Ignored initial serving event baseline: {event.timestamp}")
+            return
+
         try:
             session = CaptureSession(
                 event=event,
