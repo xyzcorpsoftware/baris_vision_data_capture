@@ -50,7 +50,7 @@ import rclpy  # noqa: E402
 import tkinter as tk  # noqa: E402
 from cv_bridge import CvBridge  # noqa: E402
 from rclpy.node import Node  # noqa: E402
-from rclpy.qos import QoSProfile  # noqa: E402
+from rclpy.qos import QoSProfile, ReliabilityPolicy  # noqa: E402
 from sensor_msgs.msg import Image  # noqa: E402
 from std_msgs.msg import String  # noqa: E402
 from tkinter import filedialog, messagebox, ttk  # noqa: E402
@@ -166,6 +166,10 @@ class GuiServingDatasetCapture(Node):
         self.stop_requested = False
 
         qos_profile = QoSProfile(depth=10)
+        color_qos_profile = QoSProfile(
+            depth=10,
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+        )
         self.create_subscription(
             String,
             config.serving_topic,
@@ -176,7 +180,7 @@ class GuiServingDatasetCapture(Node):
             Image,
             config.color_topic,
             self.color_callback,
-            qos_profile,
+            color_qos_profile,
         )
         self.create_timer(0.5, self.shutdown_if_done)
 
